@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    volumes:
+      - './backend:/app'
+      - '/app/node_modules'  # Prevent overwriting node_modules
+    ports:
+      - '4000:4000'
+    environment:
+      - NODE_ENV=development
+      - PORT=4000
+    networks:
+      - app-network
+
+  frontend:
+    image: node:18
+    working_dir: /app
+    volumes:
+      - './frontend:/app'
+      - '/app/node_modules'  # Prevent overwriting node_modules
+    command: sh -c "npm install && npm start"
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://backend:4000
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
